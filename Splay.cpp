@@ -21,8 +21,8 @@ void Splay::eraseTreeNodes(SplayNode* node) {
 void Splay::splay(stack<SplayNode*>& S) {
 	  
 	while (S.size() > 1) {
-		SplayNode* x = S.top();
-		SplayNode* p = S.top();
+		SplayNode* x = S.top(); S.pop();
+		SplayNode* p = S.top(); S.pop();
 		SplayNode* g = NULL;
 
 		if (!S.empty()) { 
@@ -158,11 +158,43 @@ void Splay::add(int key) {
 	else q->right = node;
 }
 
-//void Splay::remove(int key) {
-//
-//
-//}
-//
+void Splay::remove(int key) {
+	SplayNode* pp = NULL;
+	SplayNode* p = root;
+
+	while (p && p->key != key) {
+		pp = p;
+		if (key < p->key) p = p->left;
+		else p = p->right;
+	}
+
+	if (p == NULL) return;
+
+	if (p->left && p->right) {
+
+		SplayNode* qp = p;
+		SplayNode* q = p->left;
+
+		while (q->right) {
+			qp = q;
+			q = q->right;
+		}
+		p->key = q->key;
+		pp = qp;
+		p = q;
+	}
+
+	if (p == root) {
+		root = root->left ? root->left : root->right;
+		delete p;
+		return;
+	}
+	if (p == pp->left) pp->left = p->left ? p->left : p->right;
+	else pp->right = p->left ? p->left : p->right;
+
+	delete p;
+}
+
 //! prints all tree nodes
 void Splay::print() {
 	
@@ -185,7 +217,7 @@ void Splay::printLevelByLevel() {
 	getKeysLevelByLevel(root, 0, keys);
 
 	cout << "Splay tree level by level" << endl;
-	for (size_t i = 0; i < keys.size(); i++) {
+	for (int i = 0; i < keys.size(); i++) {
 
 		cout << "Level " << i << ": ";
 		for (auto key : keys[i]) 
